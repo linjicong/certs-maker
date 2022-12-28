@@ -1,6 +1,6 @@
 # Certs Maker
 
-[![CodeQL](https://github.com/soulteary/certs-maker/actions/workflows/codeql.yml/badge.svg)](https://github.com/soulteary/certs-maker/actions/workflows/codeql.yml) [![Docker Image](https://img.shields.io/docker/pulls/soulteary/certs-maker.svg)](https://hub.docker.com/r/soulteary/certs-maker)
+[![CodeQL](https://github.com/linjicong/certs-maker/actions/workflows/codeql.yml/badge.svg)](https://github.com/linjicong/certs-maker/actions/workflows/codeql.yml) [![Docker Image](https://img.shields.io/docker/pulls/linjicong/certs-maker.svg)](https://hub.docker.com/r/linjicong/certs-maker)
 
 <p style="text-align: center;">
   <a href="README.md" target="_blank">ENGLISH</a> | <a href="README_CN.md">中文文档</a>
@@ -19,9 +19,9 @@ Generate a self-hosted / dev certificate through configuration.
 Generate self-signed certificate supporting `*.lab.com` and `*.data.lab.com`, just "One Click":
 
 ```bash
-docker run --rm -it -v `pwd`/ssl:/ssl soulteary/certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com"
+docker run --rm -it -v `pwd`/ssl:/ssl linjicong/certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com"
 # OR use environment:
-# docker run --rm -it -v `pwd`/ssl:/ssl -e "CERT_DNS=lab.com,*.lab.com,*.data.lab.com" soulteary/certs-maker
+# docker run --rm -it -v `pwd`/ssl:/ssl -e "CERT_DNS=lab.com,*.lab.com,*.data.lab.com" linjicong/certs-maker
 ```
 
 Check in the `ssl` directory of the execution command directory:
@@ -40,7 +40,7 @@ version: '2'
 services:
 
 certs-maker:
-    image: soulteary/certs-maker
+    image: linjicong/certs-maker
     environment:
       - CERT_DNS=lab.com,*.lab.com,*.data.lab.com
     volumes:
@@ -58,9 +58,9 @@ docker-compose up
 If you want the certificate to be more friendly to K8s, you can add the `FOR_K8S` parameter:
 
 ```bash
-docker run --rm -it -v `pwd`/ssl:/ssl soulteary/certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com --FOR_K8S=ON"
+docker run --rm -it -v `pwd`/ssl:/ssl linjicong/certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com --FOR_K8S=ON"
 # OR
-# docker run --rm -it -v `pwd`/ssl:/ssl -e "CERT_DNS=lab.com,*.lab.com,*.data.lab.com" -e "FOR_K8S=ON" soulteary/certs-maker
+# docker run --rm -it -v `pwd`/ssl:/ssl -e "CERT_DNS=lab.com,*.lab.com,*.data.lab.com" -e "FOR_K8S=ON" linjicong/certs-maker
 ```
 
 And K8S friendly compose file:
@@ -70,7 +70,7 @@ version: '2'
 services:
 
 certs-maker:
-    image: soulteary/certs-maker
+    image: linjicong/certs-maker
     environment:
       - CERT_DNS=lab.com,*.lab.com,*.data.lab.com
       - FOR_K8S=ON
@@ -118,4 +118,4 @@ Use in Program CLI arguments:
 
 ## Docker Image
 
-[soulteary/certs-maker](https://hub.docker.com/r/soulteary/certs-maker)
+[linjicong/certs-maker](https://hub.docker.com/r/linjicong/certs-maker)

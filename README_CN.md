@@ -1,6 +1,6 @@
 # Certs Maker / 自制证书工具
 
-[![CodeQL](https://github.com/soulteary/certs-maker/actions/workflows/codeql.yml/badge.svg)](https://github.com/soulteary/certs-maker/actions/workflows/codeql.yml) [![Docker Image](https://img.shields.io/docker/pulls/soulteary/certs-maker.svg)](https://hub.docker.com/r/soulteary/certs-maker)
+[![CodeQL](https://github.com/linjicong/certs-maker/actions/workflows/codeql.yml/badge.svg)](https://github.com/linjicong/certs-maker/actions/workflows/codeql.yml) [![Docker Image](https://img.shields.io/docker/pulls/linjicong/certs-maker.svg)](https://hub.docker.com/r/linjicong/certs-maker)
 
 <img src="logo.png">
 
@@ -15,9 +15,9 @@
 如果你本地已经安装好 Docker 或者 CTR，那么可以通过一条命令快速生成包含 `*.lab.com` 和 `*.data.lab.com` 的证书：
 
 ```bash
-docker run --rm -it -v `pwd`/ssl:/ssl soulteary/certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com"
+docker run --rm -it -v `pwd`/ssl:/ssl linjicong/certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com"
 # 如果你希望使用 ENV 来调整生成证书的参数
-# docker run --rm -it -v `pwd`/ssl:/ssl -e "CERT_DNS=lab.com,*.lab.com,*.data.lab.com" soulteary/certs-maker
+# docker run --rm -it -v `pwd`/ssl:/ssl -e "CERT_DNS=lab.com,*.lab.com,*.data.lab.com" linjicong/certs-maker
 ```
 
 在命令执行完毕之后，我们检查执行命令的 `ssl` 就能看到生成的证书文件啦：
@@ -36,7 +36,7 @@ version: '2'
 services:
 
 certs-maker:
-    image: soulteary/certs-maker
+    image: linjicong/certs-maker
     environment:
       - CERT_DNS=lab.com,*.lab.com,*.data.lab.com
     volumes:
@@ -54,9 +54,9 @@ docker-compose up
 如果你希望生成证书对 K8s 使用体验更友好，可以添加 `FOR_K8S` 参数：
 
 ```bash
-docker run --rm -it -v `pwd`/ssl:/ssl soulteary/certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com --FOR_K8S=ON"
+docker run --rm -it -v `pwd`/ssl:/ssl linjicong/certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com --FOR_K8S=ON"
 # 或
-# docker run --rm -it -v `pwd`/ssl:/ssl -e "CERT_DNS=lab.com,*.lab.com,*.data.lab.com" -e "FOR_K8S=ON" soulteary/certs-maker
+# docker run --rm -it -v `pwd`/ssl:/ssl -e "CERT_DNS=lab.com,*.lab.com,*.data.lab.com" -e "FOR_K8S=ON" linjicong/certs-maker
 ```
 
 当然，这里也有使用 `FOR_K8S` 参数的 `compose` 配置文件：
@@ -66,7 +66,7 @@ version: '2'
 services:
 
 certs-maker:
-    image: soulteary/certs-maker
+    image: linjicong/certs-maker
     environment:
       - CERT_DNS=lab.com,*.lab.com,*.data.lab.com
       - FOR_K8S=ON
@@ -115,7 +115,7 @@ certs-maker:
 
 ## Docker 镜像发布地址
 
-[soulteary/certs-maker](https://hub.docker.com/r/soulteary/certs-maker)
+[linjicong/certs-maker](https://hub.docker.com/r/linjicong/certs-maker)
 
 ## 相关文档教程
 

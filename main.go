@@ -26,6 +26,7 @@ type CERT struct {
 	OrganizationalUnit string
 	CommonName         string
 	Domains            []string
+	Ips                []string
 	ForK8S             string
 	OwnUser            string
 	OwnUID             string
@@ -65,6 +66,20 @@ func getDomains(input string) (result []string) {
 	return result
 }
 
+func getIps(input string) (result []string) {
+	var re = regexp.MustCompile(`^(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)$`)
+	if len(re.FindAllString(input, -1)) > 0 {
+		ips := strings.Split(input, ",")
+		for _, ip := range ips {
+			s := strings.TrimSpace(ip)
+			if len(s) > 0 {
+				result = append(result, strings.ToLower(ip))
+			}
+		}
+	}
+	return result
+}
+
 func getRootDomain(input string) string {
 	var re = regexp.MustCompile(`([\.\w\-\_]+){1,2}$`)
 	file := strings.TrimLeft(re.FindString(input), ".")
@@ -74,7 +89,7 @@ func getRootDomain(input string) string {
 	return file
 }
 
-func createCertConfig(country string, state string, locality string, organization string, organizationalUnit string, commonName string, domains string, forK8S string, user string, uid string, gid string) (cert CERT) {
+func createCertConfig(country string, state string, locality string, organization string, organizationalUnit string, commonName string, domains string, ips string, forK8S string, user string, uid string, gid string) (cert CERT) {
 	country = strings.TrimSpace(country)
 	if len(country) > 0 {
 		if verifyCountry(country) {
@@ -133,6 +148,11 @@ func createCertConfig(country string, state string, locality string, organizatio
 		cert.Domains = getDomains(DEFAULT_DOMAINS)
 	}
 
+	ipsInput := strings.TrimSpace(ips)
+	if len(ipsInput) > 0 {
+		cert.Ips = getIps(ipsInput)
+	}
+
 	k8s := strings.TrimSpace(forK8S)
 	if k8s == "" {
 		cert.ForK8S = DEFAULT_FORK8S
@@ -165,12 +185,13 @@ func parseEnvInputs() (cert CERT) {
 	organizationalUnit := os.Getenv("CERT_OU")
 	commonName := os.Getenv("CERT_CN")
 	domains := os.Getenv("CERT_DNS")
+	ips := os.Getenv("CERT_IP")
 	forK8S := os.Getenv("FOR_K8S")
 	user := os.Getenv("USER")
 	uid := os.Getenv("UID")
 	gid := os.Getenv("GID")
 
-	return createCertConfig(country, state, locality, organization, organizationalUnit, commonName, domains, forK8S, user, uid, gid)
+	return createCertConfig(country, state, locality, organization, organizationalUnit, commonName, domains, ips, forK8S, user, uid, gid)
 }
 
 func parseCliInputs() (cert CERT) {
@@ -195,6 +216,9 @@ func parseCliInputs() (cert CERT) {
 	var domains string
 	flag.StringVar(&domains, "CERT_DNS", DEFAULT_DOMAINS, "Domains")
 
+	var ips string
+	flag.StringVar(&ips, "CERT_IP", "", "Ips")
+
 	var forK8S string
 	flag.StringVar(&forK8S, "FOR_K8S", DEFAULT_FORK8S, "FOR K8S")
 
@@ -209,7 +233,7 @@ func parseCliInputs() (cert CERT) {
 
 	flag.Parse()
 
-	return createCertConfig(country, state, locality, organization, organizationalUnit, commonName, domains, forK8S, user, uid, gid)
+	return createCertConfig(country, state, locality, organization, organizationalUnit, commonName, domains, ips, forK8S, user, uid, gid)
 }
 
 func mergeUserInputs() CERT {
@@ -236,6 +260,9 @@ func mergeUserInputs() CERT {
 	}
 	if !reflect.DeepEqual(cli.Domains, getDomains(DEFAULT_DOMAINS)) {
 		base.Domains = cli.Domains
+	}
+	if !reflect.DeepEqual(cli.Ips, getIps("")) {
+		base.Ips = cli.Ips
 	}
 	if cli.ForK8S != base.ForK8S {
 		base.ForK8S = cli.ForK8S
@@ -275,7 +302,7 @@ string_mask             = utf8only
 
 distinguished_name      = cert_distinguished_name
 req_extensions          = req_x509v3_extensions
-x509_extensions         = req_x509v3_extensions	
+x509_extensions         = req_x509v3_extensions
 `
 
 	certInfo := strings.Join(
@@ -322,6 +349,10 @@ subjectAltName = @alt_names
 		id := strconv.Itoa(idx + 1)
 		domains = append(domains, "DNS."+id+" = "+domain)
 	}
+	for idx, ip := range cert.Ips {
+		id := strconv.Itoa(idx + 1)
+		domains = append(domains, "IP."+id+" = "+ip)
+	}
 	certDomains := strings.Join(domains, "\n")
 
 	fileName := getRootDomain(cert.Domains[0])
@@ -352,6 +383,7 @@ func execute(command string) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd := exec.Command("sh", "-c", command)
+	//cmd := exec.Command("cmd.exe", "/C", command)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
@@ -363,7 +395,7 @@ func execute(command string) {
 }
 
 func main() {
-	fmt.Printf("running soulteary/certs-maker %s\n", Version)
+	fmt.Printf("running linjicong/certs-maker %s\n", Version)
 	config := mergeUserInputs()
 	shell := generateConfFile(config)
 	execute(shell)
